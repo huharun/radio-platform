@@ -1,0 +1,7 @@
+# Never commit these
+node_modules/
+.env
+__pycache__/
+*.pyc
+.next/
+mongo_data/
