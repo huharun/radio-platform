@@ -2,10 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .db import connect, disconnect
 from .config import settings
+from .routes.stations import router as stations_router  # ADD
 
 app = FastAPI(title="Radio Platform API", version="0.1.0")
 
-# Allow frontend to talk to backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -21,6 +21,8 @@ async def startup():
 @app.on_event("shutdown")
 async def shutdown():
     await disconnect()
+
+app.include_router(stations_router)  # ADD
 
 @app.get("/health")
 async def health():
