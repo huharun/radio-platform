@@ -1,5 +1,6 @@
 "use client"
 import { useState } from "react"
+import { IconPalette } from "./Icons"
 
 export type ThemeConfig = {
   name: string
@@ -46,8 +47,8 @@ export default function ThemePanel({ current, onChange }: Props) {
   return (
     <div className="theme-panel-wrap">
       <button className="theme-toggle-btn" onClick={() => setOpen(o => !o)} title="Themes">
-        <span style={{ fontSize: 16 }}>🎨</span>
-      </button>
+  <IconPalette />
+</button>
 
       {open && (
         <div className="theme-panel glass">

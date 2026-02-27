@@ -4,7 +4,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app        # live code reload
+      - ./backend:/app
     env_file:
       - .env
     depends_on:
@@ -17,7 +17,7 @@ services:
       - "3000:3000"
     volumes:
       - ./frontend:/app
-      - /app/node_modules     # keep node_modules inside container
+      - /app/node_modules
     env_file:
       - .env
     depends_on:
@@ -28,12 +28,22 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - mongo_data:/data/db   # data survives container restarts
+      - mongo_data:/data/db
 
   redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+
+  mongo-express:
+    image: mongo-express:latest
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017
+      ME_CONFIG_BASICAUTH: "false"
+    depends_on:
+      - mongo
 
 volumes:
   mongo_data:

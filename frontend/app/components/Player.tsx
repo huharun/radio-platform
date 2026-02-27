@@ -1,5 +1,6 @@
 "use client"
 import { useState, useRef, useEffect } from "react"
+import { IconPlay, IconPause, IconRadio } from "./Icons"
 
 interface Station {
   stationuuid: string
@@ -32,14 +33,14 @@ export default function Player({ station }: { station: Station | null }) {
       <audio ref={audioRef} />
       {station.favicon
         ? <img src={station.favicon} className="player-favicon" onError={e => (e.currentTarget.style.display = "none")} />
-        : <div className="player-favicon-fallback">📻</div>
+        : <div className="player-favicon-fallback"><IconRadio className="icon-lg" /></div>
       }
       <div className="player-info">
         <div className="player-name">
           {station.name}
           {playing && (
-            <span className="player-live-badge">
-              <span className="player-live-dot" />
+            <span className="live-badge">
+              <span className="live-badge-dot" />
               Live
             </span>
           )}
@@ -47,7 +48,7 @@ export default function Player({ station }: { station: Station | null }) {
         <div className="player-country">{station.country}</div>
       </div>
       <button className="player-btn" onClick={toggle}>
-        {playing ? "⏸" : "▶"}
+        {playing ? <IconPause /> : <IconPlay />}
       </button>
     </div>
   )

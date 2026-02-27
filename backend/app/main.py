@@ -2,14 +2,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .db import connect, disconnect
 from .config import settings
-from .routes.stations import router as stations_router  # ADD
+from .routes.stations import router as stations_router
+from .routes.auth import router as auth_router
+from .routes.favorites import router as favorites_router
+from .routes.playlists import router as playlists_router
+from .routes.users import router as users_router
 
-app = FastAPI(title="Radio Platform API", version="0.1.0")
+app = FastAPI(title="Radio Platform API", version="0.3.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -22,7 +26,11 @@ async def startup():
 async def shutdown():
     await disconnect()
 
-app.include_router(stations_router)  # ADD
+app.include_router(stations_router)
+app.include_router(auth_router)
+app.include_router(favorites_router)
+app.include_router(playlists_router)
+app.include_router(users_router)
 
 @app.get("/health")
 async def health():
