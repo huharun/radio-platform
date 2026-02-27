@@ -113,3 +113,35 @@ export async function removeStationFromPlaylist(playlistId: string, stationUuid:
     method: "DELETE", headers: authHeaders()
   })
 }
+
+
+export async function getSimilar(uuid: string) {
+  const res = await fetch(`${API}/recommendations/similar/${uuid}`)
+  return res.json()
+}
+
+export async function getPersonalized() {
+  const res = await fetch(`${API}/recommendations/personalized`, { headers: authHeaders() })
+  if (!res.ok) return []
+  return res.json()
+}
+
+export async function getTrendingByCountry(code: string) {
+  const res = await fetch(`${API}/recommendations/trending/${code}`)
+  return res.json()
+}
+
+export async function getMyStats() {
+  const res = await fetch(`${API}/stats/me`, { headers: authHeaders() })
+  if (!res.ok) return null
+  return res.json()
+}
+
+export async function logPlayStat(uuid: string, name: string, country: string) {
+  const token = getToken()
+  if (!token) return
+  await fetch(`${API}/stats/play?station_uuid=${uuid}&station_name=${encodeURIComponent(name)}&station_country=${encodeURIComponent(country)}`, {
+    method: "POST",
+    headers: authHeaders()
+  })
+}

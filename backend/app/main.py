@@ -7,8 +7,10 @@ from .routes.auth import router as auth_router
 from .routes.favorites import router as favorites_router
 from .routes.playlists import router as playlists_router
 from .routes.users import router as users_router
+from .routes.recommendations import router as recs_router
+from .routes.stats import router as stats_router
 
-app = FastAPI(title="Radio Platform API", version="0.3.0")
+app = FastAPI(title="Radio Platform API", version="0.4.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,6 +33,8 @@ app.include_router(auth_router)
 app.include_router(favorites_router)
 app.include_router(playlists_router)
 app.include_router(users_router)
+app.include_router(recs_router)
+app.include_router(stats_router)
 
 @app.get("/health")
 async def health():

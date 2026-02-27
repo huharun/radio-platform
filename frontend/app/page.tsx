@@ -5,8 +5,13 @@ import ThemePanel, { ThemeConfig } from "@/components/ThemePanel"
 import AuthModal from "@/components/AuthModal"
 import FavoriteBtn from "@/components/FavoriteBtn"
 import PlaylistModal from "@/components/PlaylistModal"
+import FilterBar from "@/components/FilterBar"
+import StatsPanel from "@/components/StatsPanel"
 import { useAuth } from "@/lib/auth"
-import { getTrending, searchStations, logPlay, getFavorites, getMyPlaylists } from "@/lib/api"
+import {
+  getTrending, logPlay, getFavorites, getMyPlaylists,
+  getSimilar, logPlayStat
+} from "@/lib/api"
 import {
   IconHome, IconLibrary, IconPlus, IconSignOut,
   IconMusic, IconChevronLeft, IconRadio, IconHeart
@@ -60,16 +65,19 @@ type Page = "home" | "library"
 
 export default function Home() {
   const { user, logout }  = useAuth()
-  const [stations, setStations]           = useState<Station[]>([])
-  const [current,  setCurrent]            = useState<Station | null>(null)
-  const [query,    setQuery]              = useState("")
-  const [loading,  setLoading]            = useState(true)
-  const [theme,    setTheme]              = useState<ThemeConfig>(DEFAULT_THEME)
-  const [showAuth, setShowAuth]           = useState(false)
-  const [page,     setPage]               = useState<Page>("home")
-  const [dropdown, setDropdown]           = useState(false)
+  const [stations,        setStations]        = useState<Station[]>([])
+  const [current,         setCurrent]         = useState<Station | null>(null)
+  const [query,           setQuery]           = useState("")
+  const [loading,         setLoading]         = useState(true)
+  const [theme,           setTheme]           = useState<ThemeConfig>(DEFAULT_THEME)
+  const [showAuth,        setShowAuth]        = useState(false)
+  const [page,            setPage]            = useState<Page>("home")
+  const [dropdown,        setDropdown]        = useState(false)
   const [playlistStation, setPlaylistStation] = useState<Station | null>(null)
+  const [filters,         setFilters]         = useState({ genre: "", country: "" })
+  const [recStations,     setRecStations]     = useState<Station[]>([])
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const API = typeof window !== "undefined" ? `http://${window.location.hostname}:8000` : "http://localhost:8000"
 
   useEffect(() => { applyTheme(DEFAULT_THEME) }, [])
 
@@ -92,17 +100,47 @@ export default function Home() {
 
   const search = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!query.trim()) return
     setLoading(true)
-    const data = await searchStations(query)
-    setStations(data)
+    const params: any = {}
+    if (query.trim())   params.name    = query
+    if (filters.genre)  params.tag     = filters.genre
+    if (filters.country) params.countrycode = filters.country
+    if (!query.trim() && !filters.genre && !filters.country) {
+      getTrending().then(data => { setStations(data); setLoading(false) })
+      return
+    }
+    const res = await fetch(`${API}/stations/search?` + new URLSearchParams(params))
+    setStations(await res.json())
     setLoading(false)
+  }
+
+  const handleFilter = (f: { genre: string, country: string }) => {
+    setFilters(f)
+    setLoading(true)
+    const params: any = { order: "clickcount", reverse: "true" }
+    if (f.genre)   params.tag         = f.genre
+    if (f.country) params.countrycode = f.country
+    if (!f.genre && !f.country) {
+      getTrending().then(data => { setStations(data); setLoading(false) })
+      return
+    }
+    fetch(`${API}/stations/search?` + new URLSearchParams(params))
+      .then(r => r.json())
+      .then(data => { setStations(data); setLoading(false) })
   }
 
   const play = (station: Station) => {
     logPlay(station.stationuuid)
+    logPlayStat(station.stationuuid, station.name, station.country)
     setCurrent(station)
+    getSimilar(station.stationuuid).then(setRecStations)
   }
+
+  const sectionLabel = query
+    ? "Results"
+    : filters.genre || filters.country
+      ? `${filters.genre || ""} ${filters.country || ""}`.trim()
+      : "Trending Now"
 
   return (
     <>
@@ -161,6 +199,7 @@ export default function Home() {
           </div>
         </header>
 
+        {/* ── HOME ── */}
         {page === "home" && (
           <>
             <div className="search-wrap">
@@ -175,7 +214,9 @@ export default function Home() {
               </form>
             </div>
 
-            <div className="section-label">{query ? "Results" : "Trending Now"}</div>
+            <FilterBar active={filters} onChange={handleFilter} />
+
+            <div className="section-label">{sectionLabel}</div>
 
             <div className="stations-grid">
               {loading && <p className="loading">Loading</p>}
@@ -214,19 +255,43 @@ export default function Home() {
                 </div>
               ))}
             </div>
+
+            {/* Similar stations */}
+            {recStations.length > 0 && current && (
+              <div className="rec-section">
+                <div className="section-label">Similar to {current.name}</div>
+                <div className="stations-grid">
+                  {recStations.slice(0, 6).map(station => (
+                    <div
+                      key={station.stationuuid}
+                      className={`station-card ${current?.stationuuid === station.stationuuid ? "active" : ""}`}
+                      onClick={() => play(station)}
+                    >
+                      {station.favicon
+                        ? <img src={station.favicon} className="station-favicon" onError={e => (e.currentTarget.style.display = "none")} />
+                        : <div className="station-favicon-fallback"><IconRadio /></div>
+                      }
+                      <div className="station-info">
+                        <div className="station-name">{station.name}</div>
+                        <div className="station-country">{station.country}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </>
         )}
 
+        {/* ── LIBRARY ── */}
         {page === "library" && user && (
           <LibraryPage onPlay={play} current={current} />
         )}
       </div>
 
       <Player station={current} />
-      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
-      {playlistStation && (
-        <PlaylistModal station={playlistStation} onClose={() => setPlaylistStation(null)} />
-      )}
+      {showAuth    && <AuthModal onClose={() => setShowAuth(false)} />}
+      {playlistStation && <PlaylistModal station={playlistStation} onClose={() => setPlaylistStation(null)} />}
     </>
   )
 }
@@ -235,7 +300,7 @@ export default function Home() {
 function LibraryPage({ onPlay, current }: { onPlay: (s: any) => void, current: any }) {
   const [favs,      setFavs]      = useState<any[]>([])
   const [playlists, setPlaylists] = useState<any[]>([])
-  const [tab,       setTab]       = useState<"favs" | "playlists">("favs")
+  const [tab,       setTab]       = useState<"favs" | "playlists" | "stats">("favs")
   const [openPl,    setOpenPl]    = useState<any | null>(null)
   const [loading,   setLoading]   = useState(true)
 
@@ -251,16 +316,20 @@ function LibraryPage({ onPlay, current }: { onPlay: (s: any) => void, current: a
       <div className="section-label">My Library</div>
 
       <div style={{ padding: "0 20px 16px" }}>
-        <div className="modal-tabs" style={{ maxWidth: 260 }}>
+        <div className="modal-tabs" style={{ maxWidth: 320 }}>
           <button className={`modal-tab ${tab === "favs" ? "active" : ""}`} onClick={() => setTab("favs")}>
-            <IconHeart className="icon-sm" /> Favorites ({favs.length})
+            <IconHeart className="icon-sm" /> Saved ({favs.length})
           </button>
           <button className={`modal-tab ${tab === "playlists" ? "active" : ""}`} onClick={() => setTab("playlists")}>
             <IconMusic className="icon-sm" /> Playlists ({playlists.length})
           </button>
+          <button className={`modal-tab ${tab === "stats" ? "active" : ""}`} onClick={() => setTab("stats")}>
+            Stats
+          </button>
         </div>
       </div>
 
+      {/* ── FAVORITES ── */}
       {tab === "favs" && (
         <div className="stations-grid">
           {favs.length === 0 && (
@@ -295,6 +364,7 @@ function LibraryPage({ onPlay, current }: { onPlay: (s: any) => void, current: a
         </div>
       )}
 
+      {/* ── PLAYLISTS ── */}
       {tab === "playlists" && (
         <>
           {openPl ? (
@@ -308,7 +378,7 @@ function LibraryPage({ onPlay, current }: { onPlay: (s: any) => void, current: a
               </div>
               <div className="stations-grid">
                 {openPl.stations?.length === 0 && (
-                  <p style={{ color: "var(--text-muted)", fontSize: 13 }}>No stations in this playlist yet.</p>
+                  <p style={{ color: "var(--text-muted)", fontSize: 13 }}>No stations yet.</p>
                 )}
                 {openPl.stations?.map((s: any) => {
                   const station = {
@@ -342,7 +412,7 @@ function LibraryPage({ onPlay, current }: { onPlay: (s: any) => void, current: a
             <div className="stations-grid">
               {playlists.length === 0 && (
                 <p style={{ color: "var(--text-muted)", fontSize: 13, padding: "20px 0" }}>
-                  No playlists yet — click + on any station card.
+                  No playlists yet — click + on any station.
                 </p>
               )}
               {playlists.map(p => (
@@ -362,6 +432,9 @@ function LibraryPage({ onPlay, current }: { onPlay: (s: any) => void, current: a
           )}
         </>
       )}
+
+      {/* ── STATS ── */}
+      {tab === "stats" && <StatsPanel onPlay={onPlay} />}
     </>
   )
 }
