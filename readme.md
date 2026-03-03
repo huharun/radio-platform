@@ -2,7 +2,7 @@
 
 > A full-stack internet radio platform with 50,000+ stations, AI chat, playlists, favorites, and listening stats.
 
-![RadioPlatform demo]
+![RadioPlatform demo](rec-radio.mp4)
 
 ---
 
