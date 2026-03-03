@@ -2,7 +2,18 @@
 
 > A full-stack internet radio platform with 50,000+ stations, AI chat, playlists, favorites, and listening stats.
 
-![RadioPlatform demo](rec-radio.mp4)
+<video src="https://github.com/user-attachments/assets/73a3f004-a8e3-49df-898f-165f9fbfdb4d" controls width="100%"></video>
+
+---
+
+## 📸 Screenshots
+
+![Home](outpics/1.png)
+![Browse](outpics/2.png)
+![Library](outpics/3.png)
+![Playlists](outpics/4.png)
+![Stats](outpics/5.png)
+![AI Chat](outpics/6.png)
 
 ---
 
@@ -31,7 +42,7 @@
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/radio-platform.git
+git clone https://github.com/huharun/radio-platform.git
 cd radio-platform
 ```
 
@@ -51,11 +62,11 @@ docker compose up --build
 
 First build takes ~2 minutes. Then open:
 
-| Service  | URL                         |
-|----------|-----------------------------|
-| Frontend | http://localhost:3000       |
-| Backend  | http://localhost:8000       |
-| API Docs | http://localhost:8000/docs  |
+| Service  | URL                        |
+|----------|----------------------------|
+| Frontend | http://localhost:3000      |
+| Backend  | http://localhost:8000      |
+| API Docs | http://localhost:8000/docs |
 
 That's it. Stations load automatically. 🎉
 
@@ -123,15 +134,15 @@ radio-platform/
 
 ## 🛠 Tech Stack
 
-| Layer     | Tech                                              |
-|-----------|---------------------------------------------------|
-| Frontend  | Next.js 14, TypeScript, Zustand, CSS Variables    |
-| Backend   | FastAPI, Motor (async MongoDB), SlowAPI           |
-| Database  | MongoDB 7                                         |
-| Cache     | Redis 7                                           |
-| AI        | Ollama (local LLM — gemma3:4b recommended)        |
+| Layer     | Tech                                                          |
+|-----------|---------------------------------------------------------------|
+| Frontend  | Next.js 14, TypeScript, Zustand, CSS Variables                |
+| Backend   | FastAPI, Motor (async MongoDB), SlowAPI                       |
+| Database  | MongoDB 7                                                     |
+| Cache     | Redis 7                                                       |
+| AI        | Ollama (local LLM — gemma3:4b recommended)                    |
 | Data      | [Radio Browser API](https://www.radio-browser.info/) (free, open) |
-| Container | Docker + Docker Compose                           |
+| Container | Docker + Docker Compose                                       |
 
 ---
 
