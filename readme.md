@@ -1,8 +1,8 @@
 # 📻 RadioPlatform
 
->  full-stack internet radio platform with 50,000+ stations, AI chat, playlists, favorites, and listening stats.
+> A full-stack internet radio platform with 50,000+ stations, AI chat, playlists, favorites, and listening stats.
 
-![RadioPlatform screenshot](https://placehold.co/1200x600/0d0d14/bf5af2?text=RadioPlatform)
+![RadioPlatform demo]
 
 ---
 
@@ -199,4 +199,4 @@ localStorage.clear()
 
 - Station data by [Radio Browser](https://www.radio-browser.info/) — community-maintained, free & open
 - AI powered by [Ollama](https://ollama.ai) — local LLM runtime
-- Built with ❤️ and Claude in 2 days
+- Built with ❤️
