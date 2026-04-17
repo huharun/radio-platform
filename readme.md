@@ -1,12 +1,12 @@
-# 📻 RadioPlatform
+# RadioPlatform
 
-> A full-stack internet radio platform with 50,000+ stations, AI chat, playlists, favorites, and listening stats.
+A full-stack internet radio platform with 50,000+ live stations, user accounts, playlists, listening stats, and a local AI chat assistant.
 
 <video src="https://github.com/user-attachments/assets/73a3f004-a8e3-49df-898f-165f9fbfdb4d" controls width="100%"></video>
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
 ![Home](outpics/1.png)
 ![Browse](outpics/2.png)
@@ -17,50 +17,37 @@
 
 ---
 
-## ✨ Features
+## Features
 
-- 🌍 **50,000+ live radio stations** via [Radio Browser API](https://www.radio-browser.info/) with infinite scroll
-- 🔍 **Search & Browse** by name, genre, country, or language
-- ❤️ **Favorites** — save stations to your account
-- 🎵 **Playlists** — create and manage your own station playlists
-- 📊 **Listening Stats** — total plays, top stations, top countries, recently played
-- 🤖 **AI Chat** — local AI assistant powered by [Ollama](https://ollama.ai) (no API key needed)
-- 🎨 **6 themes** + custom color picker (AMOLED, Dark, Light, Rose, Ocean, Forest)
-- 🔐 **Auth** — register/login with JWT tokens
-- ⚡ **Redis caching** — fast category and station lookups
-- 🐳 **Fully Dockerized** — one command to run everything
+- 50,000+ live radio stations via [Radio Browser API](https://www.radio-browser.info/) with infinite scroll
+- Search and browse by name, genre, country, or language
+- Save favorites and build playlists tied to your account
+- Listening stats — total plays, top stations, top countries, recently played
+- AI chat assistant powered by [Ollama](https://ollama.ai) running fully locally, no API key needed
+- 6 themes plus a custom color picker
+- JWT-based auth with register and login
+- Redis caching for fast lookups
+- Fully Dockerized — one command to run everything
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
-### Prerequisites
-
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows / Mac) or Docker + Docker Compose (Linux)
-- Git
-
-### 1. Clone the repo
+You need [Docker Desktop](https://www.docker.com/products/docker-desktop/) and Git.
 
 ```bash
 git clone https://github.com/huharun/radio-platform.git
 cd radio-platform
-```
-
-### 2. Set up environment
-
-```bash
 cp .env.example .env
 ```
 
-Edit `.env` and set a strong `SECRET_KEY` (anything works for local dev).
-
-### 3. Run
+Edit `.env` and set a `SECRET_KEY`, then run:
 
 ```bash
 docker compose up --build
 ```
 
-First build takes ~2 minutes. Then open:
+First build takes around 2 minutes. Once it's up:
 
 | Service  | URL                        |
 |----------|----------------------------|
@@ -68,32 +55,27 @@ First build takes ~2 minutes. Then open:
 | Backend  | http://localhost:8000      |
 | API Docs | http://localhost:8000/docs |
 
-That's it. Stations load automatically. 🎉
+---
+
+## AI Chat
+
+The assistant runs 100% locally — nothing is sent to any external service.
+
+1. Download and install [Ollama](https://ollama.ai/download)
+2. Pull a model: `ollama pull gemma3:4b`
+3. Start Ollama, then open the AI tab in the app
+
+The backend tries `host.docker.internal`, `172.17.0.1`, and `localhost` automatically, so it works on Windows, Mac, and Linux without any config changes.
 
 ---
 
-## 🤖 AI Chat (Optional)
-
-The AI assistant runs **100% locally** — no API key, no data sent to the cloud.
-
-1. Download [Ollama](https://ollama.ai/download) and install it
-2. Pull a model:
-   ```bash
-   ollama pull gemma3:4b
-   ```
-3. Make sure Ollama is running, then click **AI** in the nav or the floating mic button
-
-The backend auto-detects Ollama across `host.docker.internal`, `172.17.0.1`, and `localhost` — works on Windows, Mac, and Linux.
-
----
-
-## 🗂 Project Structure
+## Project Structure
 
 ```
 radio-platform/
 ├── docker-compose.yml
 ├── .env.example
-├── backend/                  # FastAPI + Motor (async MongoDB) + Redis
+├── backend/
 │   ├── Dockerfile
 │   ├── requirements.txt
 │   └── app/
@@ -108,106 +90,106 @@ radio-platform/
 │       └── services/
 │           ├── auth.py       # bcrypt + JWT helpers
 │           └── radio.py      # Radio Browser API + Redis cache
-└── frontend/                 # Next.js 14 (App Router) + TypeScript
+└── frontend/
     ├── Dockerfile
     ├── package.json
     ├── lib/
-    │   ├── api.ts            # All API calls
-    │   └── auth.ts           # Zustand auth store
+    │   ├── api.ts
+    │   └── auth.ts
     └── app/
-        ├── page.tsx          # Main app shell + infinite scroll
-        ├── globals.css       # Full design system (CSS vars, glass UI)
+        ├── page.tsx
+        ├── globals.css
         └── components/
-            ├── Player.tsx        # Persistent audio player
-            ├── AuthModal.tsx     # Login / register modal
-            ├── ThemePanel.tsx    # Theme switcher
-            ├── FavoriteBtn.tsx   # Heart button
+            ├── Player.tsx
+            ├── AuthModal.tsx
+            ├── ThemePanel.tsx
+            ├── FavoriteBtn.tsx
             ├── CategoryBrowser.tsx
-            ├── LibraryPage.tsx   # Favorites + playlists + stats tabs
+            ├── LibraryPage.tsx
             ├── PlaylistModal.tsx
             ├── StatsPanel.tsx
-            ├── AIChatPanel.tsx   # Ollama chat
-            └── Icons.tsx         # SVG icon components
+            ├── AIChatPanel.tsx
+            └── Icons.tsx
 ```
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
-| Layer     | Tech                                                          |
-|-----------|---------------------------------------------------------------|
-| Frontend  | Next.js 14, TypeScript, Zustand, CSS Variables                |
-| Backend   | FastAPI, Motor (async MongoDB), SlowAPI                       |
-| Database  | MongoDB 7                                                     |
-| Cache     | Redis 7                                                       |
-| AI        | Ollama (local LLM — gemma3:4b recommended)                    |
+| Layer     | Tech                                                              |
+|-----------|-------------------------------------------------------------------|
+| Frontend  | Next.js 14, TypeScript, Zustand, CSS Variables                    |
+| Backend   | FastAPI, Motor (async MongoDB), SlowAPI                           |
+| Database  | MongoDB 7                                                         |
+| Cache     | Redis 7                                                           |
+| AI        | Ollama (local LLM, gemma3:4b recommended)                         |
 | Data      | [Radio Browser API](https://www.radio-browser.info/) (free, open) |
-| Container | Docker + Docker Compose                                       |
+| Container | Docker + Docker Compose                                           |
 
 ---
 
-## 📡 API Endpoints
+## API Endpoints
 
 ```
-GET  /health                          Health check
-GET  /stations/trending               Trending stations (infinite scroll)
-GET  /stations/search                 Search by name/tag/country/language
-GET  /stations/categories/countries   Country list with station counts
-GET  /stations/categories/tags        Genre/tag list
-GET  /stations/categories/languages   Language list
+GET  /health
+GET  /stations/trending
+GET  /stations/search
+GET  /stations/categories/countries
+GET  /stations/categories/tags
+GET  /stations/categories/languages
 
-POST /auth/register                   Create account
-POST /auth/login                      Login → JWT
-GET  /auth/me                         Current user
+POST /auth/register
+POST /auth/login
+GET  /auth/me
 
-GET  /favorites/                      List favorites (auth)
-POST /favorites/                      Add favorite (auth)
-DEL  /favorites/{uuid}                Remove favorite (auth)
+GET  /favorites/
+POST /favorites/
+DEL  /favorites/{uuid}
 
-GET  /playlists/                      List playlists (auth)
-POST /playlists/                      Create playlist (auth)
-DEL  /playlists/{id}                  Delete playlist (auth)
-POST /playlists/{id}/stations         Add station to playlist (auth)
-DEL  /playlists/{id}/stations/{uuid}  Remove from playlist (auth)
+GET  /playlists/
+POST /playlists/
+DEL  /playlists/{id}
+POST /playlists/{id}/stations
+DEL  /playlists/{id}/stations/{uuid}
 
-POST /stats/play                      Log a play event (auth)
-GET  /stats/me                        My listening stats (auth)
+POST /stats/play
+GET  /stats/me
 
-GET  /ai/health                       Check Ollama status
-POST /ai/chat                         Chat with local LLM
+GET  /ai/health
+POST /ai/chat
 ```
+
+Full interactive docs at `http://localhost:8000/docs` when running locally.
 
 ---
 
-## 🔧 Development Tips
+## Dev Tips
 
-**Rebuild only backend after Python changes:**
+Rebuild only the backend after Python changes:
 ```bash
 docker compose up --build backend
 ```
 
-**View logs:**
+View logs:
 ```bash
 docker compose logs -f backend
 docker compose logs -f frontend
 ```
 
-**Reset everything (wipe DB):**
+Wipe everything and start fresh:
 ```bash
 docker compose down -v
 docker compose up --build
 ```
 
-**Clear browser auth (if token errors after DB reset):**
+If you get token errors after wiping the database, clear browser storage:
 ```javascript
-// Run in browser console
 localStorage.clear()
 ```
 
 ---
 
-## 🙏 Credits
+## Credits
 
-- Station data by [Radio Browser](https://www.radio-browser.info/) — community-maintained, free & open
-- AI powered by [Ollama](https://ollama.ai) — local LLM runtime
-- Built with ❤️
+Station data by [Radio Browser](https://www.radio-browser.info/) — community-maintained and free.
+AI runtime by [Ollama](https://ollama.ai).
